@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell mt-4">
+    <% if (user) { %>
+      <h3 class="page-subtitle">Welcome, <%= user.username %>!</h3>
+
+      <div class="row g-4 mt-3">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-wallet2 me-2"></i>My Wallet</h5>
+              <p class="card-text">Current Balance: <strong>₹<%= user.walletBalance.toFixed(2) %></strong></p>
+              <a href="/wallet" class="btn btn-primary">Go to Wallet</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-receipt-cutoff me-2"></i>My Orders</h5>
+              <p class="card-text">You have <%= orders.length %> orders.</p>
+              <a href="/orders" class="btn btn-primary">View Orders</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <% } else { %>
+      <p>Please log in to view your dashboard. <a href="/auth/login">Login here</a></p>
+    <% } %>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

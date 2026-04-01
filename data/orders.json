@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "userId": 123,
+    "items": [{"id": 1, "quantity": 1, "price": 290}],
+    "totalPrice": 290,
+    "status": "pending",
+    "pickupTime": "2024-07-26T12:00:00",
+    "createdAt": "2024-07-25T10:00:00.000Z",
+    "updatedAt": "2024-07-25T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "userId": 456,
+    "items": [{"id": 3, "quantity": 2, "price": 250}],
+    "totalPrice": 500,
+    "status": "pending",
+    "pickupTime": "2024-07-26T11:30:00",
+    "createdAt": "2024-07-25T09:30:00.000Z",
+    "updatedAt": "2024-07-25T09:30:00.000Z"
+  }
+]

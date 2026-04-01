@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wallet - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell mt-4">
+    <h3 class="page-subtitle"><i class="bi bi-wallet2 me-2"></i>My Wallet</h3>
+
+    <% if (message) { %>
+      <div class="alert alert-success"><%= message %></div>
+    <% } %>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Current Balance</h5>
+        <p class="card-text fs-2">₹<%= user.walletBalance.toFixed(2) %></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Top Up Wallet</h5>
+        <form method="POST" action="/wallet/topup">
+          <div class="mb-3">
+            <label for="amount" class="form-label">Amount</label>
+            <input type="number" class="form-control" id="amount" name="amount" min="1" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Top Up</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-body">
+        <h5 class="card-title">Transaction History</h5>
+        <% if (transactions && transactions.length > 0) { %>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th class="text-end">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% transactions.forEach(transaction => { %>
+                <tr>
+                  <td><%= new Date(transaction.date).toLocaleDateString('en-IN') %></td>
+                  <td>
+                    <% if (transaction.type === 'top-up') { %>
+                      <span class="badge bg-success">Top-up</span>
+                    <% } else { %>
+                      <span class="badge bg-danger">Purchase</span>
+                    <% } %>
+                  </td>
+                  <td><%= transaction.description %></td>
+                  <td class="text-end">₹<%= transaction.amount.toFixed(2) %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p class="text-muted mb-0">No transactions yet.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

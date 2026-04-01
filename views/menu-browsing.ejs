@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Menu - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell mt-4">
+    <div class="menu-shell">
+      <section class="menu-hero">
+        <h1><i class="bi bi-cup-hot-fill me-2"></i>Browse Our Menu</h1>
+        <p>Fresh picks across every category. Filter quickly and add favorites to your cart.</p>
+      </section>
+
+      <section class="menu-panel">
+        <h5 class="mb-1">Category</h5>
+        <div class="filter-row" role="group" aria-label="Category filter">
+          <a href="/products/menu?category=Breakfast&dietary=<%= selectedDietary || 'All' %>" class="filter-chip <%= selectedCategory === 'Breakfast' ? 'is-active' : '' %>"><i class="bi bi-sunrise-fill me-1"></i>Breakfast</a>
+          <a href="/products/menu?category=Lunch&dietary=<%= selectedDietary || 'All' %>" class="filter-chip <%= selectedCategory === 'Lunch' ? 'is-active' : '' %>"><i class="bi bi-egg-fried me-1"></i>Lunch</a>
+          <a href="/products/menu?category=Snacks&dietary=<%= selectedDietary || 'All' %>" class="filter-chip <%= selectedCategory === 'Snacks' ? 'is-active' : '' %>"><i class="bi bi-cake2-fill me-1"></i>Snacks</a>
+          <a href="/products/menu?category=Drinks&dietary=<%= selectedDietary || 'All' %>" class="filter-chip <%= selectedCategory === 'Drinks' ? 'is-active' : '' %>"><i class="bi bi-cup-straw me-1"></i>Drinks</a>
+        </div>
+      </section>
+
+      <section class="menu-panel">
+        <h5 class="mb-1">Dietary Preference</h5>
+        <form id="filterForm">
+          <div class="dietary-options">
+            <label class="dietary-pill" for="dietary-all">
+              <input class="form-check-input m-0" type="radio" name="dietary" id="dietary-all" value="All" <%= selectedDietary === 'All' ? 'checked' : '' %> onchange="updateDietary('All')">
+              <i class="bi bi-grid me-1"></i>All Items
+            </label>
+
+            <label class="dietary-pill" for="dietary-veg">
+              <input class="form-check-input m-0" type="radio" name="dietary" id="dietary-veg" value="Veg" <%= selectedDietary === 'Veg' ? 'checked' : '' %> onchange="updateDietary('Veg')">
+              <i class="bi bi-flower1 me-1"></i>Vegetarian
+            </label>
+
+            <label class="dietary-pill" for="dietary-nonveg">
+              <input class="form-check-input m-0" type="radio" name="dietary" id="dietary-nonveg" value="Non-Veg" <%= selectedDietary === 'Non-Veg' ? 'checked' : '' %> onchange="updateDietary('Non-Veg')">
+              <i class="bi bi-fire me-1"></i>Non-Vegetarian
+            </label>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <div class="row g-4">
+          <% if (items && items.length > 0) { %>
+            <% items.forEach(item => { %>
+              <div class="col-sm-6 col-lg-3">
+                <div class="menu-card">
+                  <div style="position: relative; overflow: hidden; border-radius: 8px; aspect-ratio: 1;">
+                    <img class="menu-clickable-image" data-item-json='<%= JSON.stringify(item) %>' src="<%= item.image %>" alt="<%= item.name %>" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                  </div>
+
+                  <div class="p-3 d-flex flex-column h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+                      <h6 class="mb-0 menu-item-title" data-item-json='<%= JSON.stringify(item) %>' style="cursor: pointer; color: #6F4E37;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><%= item.name %></h6>
+                      <span class="badge text-bg-light border"><%= item.category %></span>
+                    </div>
+
+                    <p class="menu-meta mb-2"><%= item.subcategory %></p>
+
+                    <div class="mb-2 d-flex flex-wrap gap-1">
+                      <span class="badge <%= item.dietary === 'Veg' ? 'text-bg-success' : 'text-bg-danger' %>">
+                        <%= item.dietary === 'Veg' ? 'Veg' : 'Non-Veg' %>
+                      </span>
+                      <span class="badge text-bg-secondary"><i class="bi bi-clock-history me-1"></i><%= item.prepTime %> min</span>
+                    </div>
+
+                    <p class="menu-price mb-3">₹<%= item.price %></p>
+
+                    <button class="btn btn-success btn-sm mt-auto btn-add-to-cart" data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
+                      <i class="bi bi-bag-plus-fill me-1"></i>Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="col-12">
+              <div class="empty-state">
+                <h5 class="mb-2">No items found</h5>
+                <p class="text-muted mb-0">Try switching category or dietary preference to see more options.</p>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="menu-actions mb-3">
+        <a href="/" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-circle me-1"></i>Back to Home</a>
+        <a href="/cart" class="btn btn-primary ms-auto">
+          <i class="bi bi-bag-check-fill me-1"></i>View Cart
+          <% if (cartCount && cartCount > 0) { %>
+            <span class="badge text-bg-danger ms-1"><%= cartCount %></span>
+          <% } %>
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Handle menu image and title clicks
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('menu-clickable-image') || e.target.classList.contains('menu-item-title')) {
+        const img = e.target.classList.contains('menu-clickable-image') ? e.target : e.target;
+        const itemJson = e.target.dataset.itemJson;
+        if (itemJson) {
+          const item = JSON.parse(itemJson);
+          openMenuItemModal(item);
+        }
+      }
+    });
+
+    // Handle add to cart button clicks
+    document.addEventListener('click', function(e) {
+      const button = e.target.closest('.btn-add-to-cart');
+      if (button) {
+        const itemId = button.dataset.itemId;
+        const itemName = button.dataset.itemName;
+        addToCartFromMenu(itemId, itemName);
+      }
+    });
+
+    function updateDietary(dietaryValue) {
+      const category = new URLSearchParams(window.location.search).get('category') || 'Breakfast';
+      window.location.href = `/products/menu?category=${category}&dietary=${dietaryValue}`;
+    }
+
+    function addToCartFromMenu(itemId, itemName) {
+      fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemId: itemId,
+          quantity: 1
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(`${itemName} added to cart!`);
+        } else {
+          alert('Error: ' + (data.error || 'Could not add item'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding to cart');
+      });
+    }
+
+    // Menu Item Modal Functions
+    function openMenuItemModal(item) {
+      const modal = document.getElementById('menuItemModal');
+      if (!modal) return;
+
+      document.getElementById('menuModalImage').src = item.image;
+      document.getElementById('menuModalImage').alt = item.name;
+      document.getElementById('menuModalName').textContent = item.name;
+      document.getElementById('menuModalCategory').textContent = item.category;
+      document.getElementById('menuModalSubCategory').textContent = item.subcategory || '';
+      
+      const dietaryTag = document.getElementById('menuModalDietary');
+      if (item.dietary === 'Veg') {
+        dietaryTag.textContent = '🌱 Veg';
+        dietaryTag.className = 'badge text-bg-success';
+      } else {
+        dietaryTag.textContent = '🍗 Non-Veg';
+        dietaryTag.className = 'badge text-bg-danger';
+      }
+      
+      document.getElementById('menuModalPrepTime').textContent = `⏱️ ${item.prepTime} min`;
+      document.getElementById('menuModalDescription').textContent = item.description;
+      document.getElementById('menuModalPrice').textContent = `₹${item.price}`;
+      
+      const stockDiv = document.getElementById('menuModalStock');
+      const outOfStock = item.isOutOfStock || item.quantity <= 0;
+      if (!outOfStock) {
+        stockDiv.innerHTML = `<span style="color: #28a745; font-weight: 600;">${item.quantity} in stock</span>`;
+      } else {
+        stockDiv.innerHTML = '<span style="color: #dc3545; font-weight: 600;">Out of Stock</span>';
+      }
+      
+      document.getElementById('menuModalItemId').value = item.id;
+      document.getElementById('menuModalQuantity').max = item.quantity;
+      
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenuItemModal() {
+      const modal = document.getElementById('menuItemModal');
+      if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('menuItemModal');
+      if (modal) {
+        modal.addEventListener('click', function(event) {
+          if (event.target === this) {
+            closeMenuItemModal();
+          }
+        });
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeMenuItemModal();
+      }
+    });
+  </script>
+
+  <!-- Menu Item Modal -->
+  <div id="menuItemModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="menuModalName">Item Name</h2>
+        <button class="modal-close" onclick="closeMenuItemModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <img id="menuModalImage" src="" alt="Item" class="modal-image">
+        
+        <div class="modal-info">
+          <div class="modal-category">
+            <span class="modal-category-tag" id="menuModalCategory">Category</span>
+            <span id="menuModalSubCategory" style="color: #666; font-size: 0.9rem;"></span>
+          </div>
+
+          <div class="modal-dietary">
+            <span class="badge" id="menuModalDietary">Veg</span>
+            <span style="color: #666; font-size: 0.9rem;" id="menuModalPrepTime">5 min</span>
+          </div>
+
+          <div>
+            <div class="modal-description-title">Description</div>
+            <p class="modal-description" id="menuModalDescription">Item description goes here</p>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+            <div>
+              <div style="font-size: 0.9rem; color: #666;">Price</div>
+              <div class="modal-price" id="menuModalPrice">₹0</div>
+            </div>
+            <div id="menuModalStock" style="text-align: right; font-size: 0.9rem;">In Stock</div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <form id="menuModalAddToCartForm" method="POST" action="/cart/add" style="display: flex; gap: 1rem; width: 100%;">
+            <input type="hidden" name="itemId" id="menuModalItemId">
+            <input type="number" name="quantity" value="1" min="1" id="menuModalQuantity" max="100" style="flex: 0.5; min-width: 70px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">Add to Cart</button>
+          </form>
+          <button type="button" class="btn btn-secondary" onclick="closeMenuItemModal()" style="flex: 0; min-width: 100px;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

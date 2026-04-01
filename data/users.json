@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@kunducafe.com",
+    "collegeEmail": null,
+    "collegeId": null,
+    "password": "admin4908",
+    "role": "admin",
+    "walletBalance": 0,
+    "isEmailVerified": true,
+    "resetPasswordToken": null,
+    "resetPasswordExpire": null,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]

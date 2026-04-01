@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell">
+    <h1>My Orders</h1>
+
+    <% if (orders && orders.length > 0) { %>
+      <div class="orders-list">
+        <% orders.forEach(order => { %>
+          <div class="order-card">
+            <h3>Order #<%= order.id %></h3>
+            <p><strong>Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></p>
+            <p><strong>Status:</strong> <span class="status <%= order.status %>"><%= order.status %></span></p>
+            <p><strong>Total Price:</strong> ₹<%= Math.round(order.totalPrice) %></p>
+            <p><strong>Items:</strong> <%= order.items.length %></p>
+            
+            <a href="/orders/<%= order.id %>" class="btn btn-primary">View Details</a>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <p>You haven't placed any orders yet. <a href="/products">Start shopping</a></p>
+    <% } %>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

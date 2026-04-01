@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Details - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell">
+    <h1>Order Details</h1>
+    
+    <div class="order-details">
+      <h2>Order #<%= order.id %></h2>
+      <p><strong>Date Placed:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></p>
+      <p><strong>Status:</strong> <span class="status <%= order.status %>"><%= order.status %></span></p>
+
+      <h3>Items</h3>
+      <table class="order-items-table">
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(item => { %>
+            <tr>
+              <td><%= item.id %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.price %></td>
+              <td>₹<%= (item.price * item.quantity) %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        <p class="total-price">Total: ₹<%= Math.round(order.totalPrice) %></p>
+      </div>
+
+      <a href="/orders" class="btn btn-primary">Back to Orders</a>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

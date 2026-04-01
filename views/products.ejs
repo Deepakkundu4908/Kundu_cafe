@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell">
+    <h1>Our Products</h1>
+    
+    <div class="search-bar">
+      <form method="GET" action="/products/search">
+        <input type="text" name="query" placeholder="Search products..." required>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+
+    <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+      <p>Search results for: <strong><%= searchQuery %></strong></p>
+    <% } %>
+
+    <div class="products-grid">
+      <% if (items && items.length > 0) { %>
+        <% items.forEach(item => { %>
+          <div class="product-card">
+            <img class="clickable-image" data-item-json='<%= JSON.stringify(item) %>' src="<%= item.image %>" alt="<%= item.name %>" style="cursor: pointer;">
+            <h3><%= item.name %></h3>
+            <p class="category"><%= item.category %></p>
+            <p class="description"><%= item.description.substring(0, 80) %>...</p>
+            <p class="price">₹<%= item.price %></p>
+            <p class="quantity">Stock: <%= item.quantity %></p>
+            
+            <% if (item.quantity > 0) { %>
+              <form method="POST" action="/cart/add" class="add-cart-form">
+                <input type="hidden" name="itemId" value="<%= item.id %>">
+                <input type="hidden" name="price" value="<%= item.price %>">
+                <input type="number" name="quantity" value="1" min="1" max="<%= item.quantity %>">
+                <button type="submit" class="btn btn-success">Add to Cart</button>
+              </form>
+            <% } else { %>
+              <button class="btn btn-disabled" disabled>Out of Stock</button>
+            <% } %>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p>No products available.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Product Details Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalProductName">Product Name</h2>
+        <button class="modal-close" onclick="closeProductModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <img id="modalProductImage" src="" alt="Product" class="modal-image">
+        
+        <div class="modal-info">
+          <div class="modal-category">
+            <span class="modal-category-tag" id="modalProductCategory">Category</span>
+            <span id="modalProductSubcategory" style="color: #666; font-size: 0.9rem;"></span>
+          </div>
+
+          <div class="modal-dietary">
+            <span class="modal-dietary-tag" id="modalProductDietary">Veg</span>
+            <span style="color: #666; font-size: 0.9rem;" id="modalPrepTime">5 min</span>
+          </div>
+
+          <div>
+            <div class="modal-description-title">Description</div>
+            <p class="modal-description" id="modalProductDescription">Product description goes here</p>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+            <div>
+              <div style="font-size: 0.9rem; color: #666;">Price</div>
+              <div class="modal-price" id="modalProductPrice">₹0</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.9rem; color: #666;">Stock</div>
+              <div class="modal-stock" id="modalProductStock">In Stock</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <form id="modalAddToCartForm" method="POST" action="/cart/add" style="display: flex; gap: 1rem; width: 100%;">
+            <input type="hidden" name="itemId" id="modalItemId">
+            <input type="hidden" name="price" id="modalItemPrice">
+            <input type="number" name="quantity" value="1" min="1" id="modalQuantity" max="100" style="flex: 0.5; min-width: 70px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">Add to Cart</button>
+          </form>
+          <button type="button" class="btn btn-secondary" onclick="closeProductModal()" style="flex: 0; min-width: 100px;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Handle image clicks
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('clickable-image')) {
+        const itemJson = e.target.dataset.itemJson;
+        if (itemJson) {
+          const item = JSON.parse(itemJson);
+          openProductModal(item);
+        }
+      }
+    });
+
+    function openProductModal(item) {
+      document.getElementById('modalProductName').textContent = item.name;
+      document.getElementById('modalProductImage').src = item.image;
+      document.getElementById('modalProductImage').alt = item.name;
+      document.getElementById('modalProductCategory').textContent = item.category;
+      document.getElementById('modalProductSubcategory').textContent = item.subcategory || '';
+      
+      const dietaryTag = document.getElementById('modalProductDietary');
+      if (item.dietary === 'Veg') {
+        dietaryTag.textContent = '🌱 Veg';
+        dietaryTag.className = 'modal-dietary-tag veg';
+      } else {
+        dietaryTag.textContent = '🍗 Non-Veg';
+        dietaryTag.className = 'modal-dietary-tag nonveg';
+      }
+      
+      document.getElementById('modalPrepTime').textContent = `⏱️ ${item.prepTime} min`;
+      document.getElementById('modalProductDescription').textContent = item.description;
+      document.getElementById('modalProductPrice').textContent = `₹${item.price}`;
+      
+      document.getElementById('modalItemId').value = item.id;
+      document.getElementById('modalItemPrice').value = item.price;
+      document.getElementById('modalQuantity').max = item.quantity;
+      
+      const stockElement = document.getElementById('modalProductStock');
+      if (item.quantity > 0) {
+        stockElement.textContent = `${item.quantity} available`;
+        stockElement.className = 'modal-stock in-stock';
+      } else {
+        stockElement.textContent = 'Out of Stock';
+        stockElement.className = 'modal-stock out-of-stock';
+      }
+      
+      document.getElementById('productModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.remove('show');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside of it
+    document.getElementById('productModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        closeProductModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeProductModal();
+      }
+    });
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

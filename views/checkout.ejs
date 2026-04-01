@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell mt-4">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <h3 class="page-subtitle"><i class="bi bi-receipt me-2"></i>Order Summary</h3>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <% if (cart && cart.length > 0) { %>
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let subtotal = 0; %>
+                  <% cart.forEach(item => { %>
+                    <% const itemTotal = item.price * item.quantity; %>
+                    <% subtotal += itemTotal; %>
+                    <tr>
+                      <td>
+                        <strong><%= item.name %></strong><br>
+                        <small class="text-muted">
+                          <%= item.dietary === 'Veg' ? 'Veg' : 'Non-Veg' %> · <i class="bi bi-clock-history"></i> <%= item.prepTime || 'N/A' %> min
+                        </small>
+                      </td>
+                      <td class="text-center"><%= item.quantity %></td>
+                      <td class="text-end">₹<%= itemTotal %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+
+              <hr>
+
+              <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <strong>₹<%= subtotal %></strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Delivery Fee:</span>
+                <strong>₹0</strong>
+              </div>
+              <div class="d-flex justify-content-between checkout-total-row">
+                <span>Total:</span>
+                <strong>₹<%= subtotal %></strong>
+              </div>
+            <% } else { %>
+              <p class="text-muted mb-0">Your cart is empty. <a href="/products/menu">Browse menu</a></p>
+            <% } %>
+          </div>
+        </div>
+
+        <a href="/products/menu" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-left-circle me-1"></i>Continue Shopping</a>
+      </div>
+
+      <div class="col-lg-6">
+        <h3 class="page-subtitle"><i class="bi bi-clock me-2"></i>Select Pickup Time</h3>
+
+        <% if (message) { %>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong><i class="bi bi-exclamation-triangle-fill me-1"></i></strong> <%= message %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <form method="POST" action="/orders/create" id="checkoutForm" class="checkout-form" onsubmit="validateCheckout(event)">
+          <div class="mb-4">
+            <label for="pickupDate" class="form-label"><strong><i class="bi bi-calendar-event me-1"></i>Pickup Date</strong></label>
+            <input
+              type="date"
+              class="form-control form-control-lg"
+              id="pickupDate"
+              name="pickupDate"
+              min="<%= minDate %>"
+              max="<%= maxDate %>"
+              required
+              onchange="updatePickupTimes(this.value)">
+            <small class="text-muted d-block mt-2">Select date (today or tomorrow)</small>
+          </div>
+
+          <div class="mb-4">
+            <label for="pickupTime" class="form-label"><strong><i class="bi bi-clock-history me-1"></i>Pickup Time</strong></label>
+            <select
+              class="form-select form-select-lg"
+              id="pickupTime"
+              name="pickupTime"
+              required>
+              <option value="">-- Select a time slot --</option>
+              <% if (pickupTimes && pickupTimes.length > 0) { %>
+                <% pickupTimes.forEach(slot => { %>
+                  <option value="<%= slot.value %>">
+                    <%= slot.time %> (Ready in ~<%= slot.prepTime || '15' %> min)
+                  </option>
+                <% }); %>
+              <% } else { %>
+                <option disabled>No time slots available</option>
+              <% } %>
+            </select>
+            <small class="text-muted d-block mt-2">
+              Earliest: <%= pickupTimes && pickupTimes.length > 0 ? pickupTimes[0].time : 'N/A' %>
+              | Latest: <%= pickupTimes && pickupTimes.length > 0 ? pickupTimes[pickupTimes.length - 1].time : 'N/A' %>
+            </small>
+          </div>
+
+          <div class="mb-4">
+            <label for="notes" class="form-label"><strong><i class="bi bi-chat-left-text me-1"></i>Special Instructions (Optional)</strong></label>
+            <textarea
+              class="form-control"
+              id="notes"
+              name="notes"
+              rows="3"
+              placeholder="E.g., less spicy, extra sauce, no onions..."></textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label"><strong><i class="bi bi-credit-card-2-front me-1"></i>Payment Method</strong></label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="payment-wallet" value="wallet">
+              <label class="form-check-label" for="payment-wallet">
+                Pay with Wallet (Balance: ₹<%= user.walletBalance.toFixed(2) %>)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="payment-cash" value="cash" checked>
+              <label class="form-check-label" for="payment-cash">
+                Pay at Pickup
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="payment-online" value="online" disabled>
+              <label class="form-check-label text-muted" for="payment-online">
+                Online Payment (Coming Soon)
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-4 form-check">
+            <input class="form-check-input" type="checkbox" id="terms" required>
+            <label class="form-check-label" for="terms">
+              I agree to the <a href="#" target="_blank">terms and conditions</a>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-lg w-100" id="placeOrderBtn">
+            <i class="bi bi-check2-circle me-1"></i>Place Order (₹<%= cartTotal || '0' %>)
+          </button>
+        </form>
+
+        <div class="alert alert-info mt-4 mb-0">
+          <h6><i class="bi bi-info-circle-fill me-1"></i>How it works</h6>
+          <ul class="mb-0">
+            <li>Choose your pickup date and time</li>
+            <li>We prepare your order for the selected slot</li>
+            <li>Pick up from the cafe counter</li>
+            <li>Pay at pickup</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function validateCheckout(event) {
+    const pickupDate = document.getElementById('pickupDate').value;
+    const pickupTime = document.getElementById('pickupTime').value;
+
+    if (!pickupDate) {
+      event.preventDefault();
+      alert('Please select a pickup date');
+      return false;
+    }
+
+    if (!pickupTime) {
+      event.preventDefault();
+      alert('Please select a pickup time');
+      return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(pickupDate);
+
+    if (selectedDate < today) {
+      event.preventDefault();
+      alert('Pickup date must be today or later');
+      return false;
+    }
+
+    const timeSlot = document.getElementById('pickupTime').selectedOptions[0].text;
+    return confirm(`Confirm Order?\n\nDate: ${pickupDate}\nTime: ${timeSlot}\n\nProceed?`);
+  }
+
+  function updatePickupTimes(date) {
+    console.log('Selected date:', date);
+  }
+
+  function initCheckout() {
+    const today = new Date();
+    const minDate = today.toISOString().split('T')[0];
+
+    let tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const maxDate = tomorrow.toISOString().split('T')[0];
+
+    document.getElementById('pickupDate').min = minDate;
+    document.getElementById('pickupDate').max = maxDate;
+    document.getElementById('pickupDate').value = minDate;
+  }
+
+  function updateCartTotal() {
+    const subtotal = <%= cartTotal || 0 %>;
+    document.getElementById('placeOrderBtn').innerHTML = `<i class="bi bi-check2-circle me-1"></i>Place Order (₹${subtotal})`;
+  }
+
+  document.addEventListener('DOMContentLoaded', initCheckout);
+  document.addEventListener('DOMContentLoaded', updateCartTotal);
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

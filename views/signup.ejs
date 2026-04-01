@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Kundu Cafe</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="container page-shell auth-container">
+    <h1>Sign Up - Student Registration</h1>
+    <% if (typeof message !== 'undefined' && message) { %>
+      <div class="error-message"><%= message %></div>
+    <% } %>
+    
+    <form method="POST" action="/auth/signup">
+      <div class="form-group">
+        <label for="username">Full Name:</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="collegeEmail">College Email:</label>
+        <input type="email" id="collegeEmail" name="collegeEmail" placeholder="name@college.edu" required>
+      </div>
+
+      <div class="form-group">
+        <label for="collegeId">College ID:</label>
+        <input type="text" id="collegeId" name="collegeId" placeholder="e.g., CSE2023001" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="passwordConfirm">Confirm Password:</label>
+        <input type="password" id="passwordConfirm" name="passwordConfirm" required>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Sign Up</button>
+    </form>
+    
+    <p>Already have an account? <a href="/auth/login">Login here</a></p>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>
