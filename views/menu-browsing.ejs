@@ -60,13 +60,13 @@
             <% items.forEach(item => { %>
               <div class="col-sm-6 col-lg-3">
                 <div class="menu-card">
-                  <div style="position: relative; overflow: hidden; border-radius: 8px; aspect-ratio: 1;">
-                    <img class="menu-clickable-image" data-item-json='<%= JSON.stringify(item) %>' src="<%= item.image %>" alt="<%= item.name %>" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                  <div class="menu-card-media">
+                    <img class="menu-clickable-image" data-item-json='<%= JSON.stringify(item) %>' src="<%= item.image %>" alt="<%= item.name %>" />
                   </div>
 
-                  <div class="p-3 d-flex flex-column h-100">
+                  <div class="menu-card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
-                      <h6 class="mb-0 menu-item-title" data-item-json='<%= JSON.stringify(item) %>' style="cursor: pointer; color: #6F4E37;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><%= item.name %></h6>
+                      <h6 class="mb-0 menu-item-title" data-item-json='<%= JSON.stringify(item) %>'><%= item.name %></h6>
                       <span class="badge text-bg-light border"><%= item.category %></span>
                     </div>
 
@@ -81,15 +81,17 @@
 
                     <p class="menu-price mb-3">₹<%= item.price %></p>
 
-                    <% if (!item.isOutOfStock && item.quantity > 0) { %>
-                      <button class="btn btn-success btn-sm mt-auto btn-add-to-cart" data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
-                        <i class="bi bi-bag-plus-fill me-1"></i>Add to Cart
-                      </button>
-                    <% } else { %>
-                      <button class="btn btn-secondary btn-sm mt-auto" disabled>
-                        <i class="bi bi-slash-circle me-1"></i>Out of Stock
-                      </button>
-                    <% } %>
+                    <div class="menu-card-footer">
+                      <% if (!item.isOutOfStock && item.quantity > 0) { %>
+                        <button class="btn btn-success btn-sm mt-auto btn-add-to-cart" data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
+                          <i class="bi bi-bag-plus-fill me-1"></i>Add to Cart
+                        </button>
+                      <% } else { %>
+                        <button class="btn btn-secondary btn-sm mt-auto" disabled>
+                          <i class="bi bi-slash-circle me-1"></i>Out of Stock
+                        </button>
+                      <% } %>
+                    </div>
                   </div>
                 </div>
               </div>
